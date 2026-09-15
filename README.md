@@ -18,7 +18,7 @@ A tiny Windows tool to edit the text of a local HTML file in the browser and sav
 
 ## 설치 (일반 사용자)
 
-1. [Releases](https://github.com/jch2100/html-simple-editor/releases/latest)에서 `html-simple-editor-v1.0.0.zip`을 받아 압축을 풉니다.
+1. [Releases](https://github.com/jch2100/html-simple-editor/releases/latest)에서 `html-simple-editor-*.zip`을 받아 압축을 풉니다.
 2. `HTML편집.exe`를 더블클릭합니다.
    서명되지 않은 프로그램이라 처음 한 번 **"Windows의 PC 보호"** 창이 뜹니다. **[추가 정보] → [실행]** 을 누르세요.
 

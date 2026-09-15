@@ -60,16 +60,23 @@ EDITOR_JS = r"""
   body.contentEditable = 'true';
   let dirty = false;
 
-  document.addEventListener('keydown', (e) => {
-    // Plain Enter -> <br> instead of splitting the block into a new <div>/<p>.
-    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) {
-      e.preventDefault();
-      document.execCommand('insertLineBreak');
-    } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-      e.preventDefault();
-      save();
+  // Take keys before the page's own scripts. Slide decks bind window keydown
+  // (space = next slide, arrows = move) and would swallow plain typing.
+  const onKey = (e) => {
+    if (!body.contains(e.target)) return;  // toolbar and outside: leave alone
+    if (e.type === 'keydown') {
+      // Plain Enter -> <br> instead of splitting the block into a new <div>/<p>.
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) {
+        e.preventDefault();
+        document.execCommand('insertLineBreak');
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        save();
+      }
     }
-  });
+    e.stopPropagation();
+  };
+  ['keydown', 'keypress', 'keyup'].forEach((t) => window.addEventListener(t, onKey, true));
   // Fallback for Enter pressed while the Korean IME was composing. Chrome
   // ignores execCommand re-entered from beforeinput, so defer it a tick.
   document.addEventListener('beforeinput', (e) => {
@@ -148,7 +155,12 @@ EDITOR_JS = r"""
     }
   }
 
-  status('편집 모드 · Enter = 줄바꿈 · Ctrl+S = 저장');
+  // Pages that build or change their own DOM (slide decks, dashboards) save
+  // whatever is on screen right now, so warn before the first Ctrl+S.
+  const pageScripts = [...document.scripts].filter((s) => s.id !== '__html_edit').length;
+  status(pageScripts
+    ? '편집 모드 · 스크립트가 있는 파일: 저장하면 화면 상태가 굳습니다'
+    : '편집 모드 · Enter = 줄바꿈 · Ctrl+S = 저장');
 })();
 """
 
